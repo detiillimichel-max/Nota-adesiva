@@ -1,0 +1,27 @@
+{
+  "name": "Minhas Notas",
+  "short_name": "Notas",
+  "description": "App de notas adesivas com editor pautado",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#faf7f0",
+  "theme_color": "#faf7f0",
+  "lang": "pt-BR",
+  "scope": "/",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
