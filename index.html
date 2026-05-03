@@ -9,35 +9,49 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Notas" />
   <title>Notas</title>
-
-  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json" />
-
-  <!-- Apple Touch Icons -->
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
-
-  <!-- Estilos (ordem importa: global → dashboard → editor) -->
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
   <link rel="stylesheet" href="css/editor.css" />
 </head>
 <body>
 
-  <!-- CABEÇALHO DO APP -->
+  <!-- CABEÇALHO -->
   <header class="app-header">
-    <h1 class="app-title">minhas notas</h1>
-    <span class="note-count" id="noteCount">0 notas</span>
+    <div class="app-header__top">
+      <h1 class="app-title">minhas notas</h1>
+      <span class="note-count" id="noteCount">0 notas</span>
+    </div>
+
+    <!-- Barra de busca + toggle de vista -->
+    <div class="app-toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input
+          type="search"
+          class="search-input"
+          id="searchInput"
+          placeholder="Buscar notas…"
+          autocomplete="off"
+        />
+        <button class="search-clear" id="searchClear" aria-label="Limpar busca">✕</button>
+      </div>
+
+      <div class="view-toggle">
+        <button class="view-btn is-active" id="btnGrid" aria-label="Vista grid" title="Grid">⊞</button>
+        <button class="view-btn" id="btnList" aria-label="Vista lista" title="Lista">☰</button>
+      </div>
+    </div>
   </header>
 
-  <!-- DASHBOARD — Grid de notas -->
+  <!-- DASHBOARD -->
   <main class="dashboard" id="dashboard"></main>
 
-  <!-- TELA CHEIA DE EDIÇÃO -->
+  <!-- EDITOR TELA CHEIA -->
   <div class="editor-overlay" id="editorOverlay" aria-hidden="true">
     <div class="editor-panel">
 
@@ -46,13 +60,24 @@
         <button class="btn-close" id="btnCloseEditor" aria-label="Fechar editor">✕</button>
       </div>
 
+      <!-- Campo de título (novo) -->
+      <div class="editor-title-wrap" id="editorTitleWrap">
+        <input
+          type="text"
+          class="editor-title-input"
+          id="editorTitle"
+          placeholder="Título (opcional)"
+          maxlength="60"
+          autocomplete="off"
+        />
+      </div>
+
       <div class="editor-paper">
         <textarea
           class="editor-textarea"
           id="editorTextarea"
           placeholder="Escreva aqui…"
           spellcheck="true"
-          autofocus
         ></textarea>
       </div>
 
@@ -64,16 +89,16 @@
     </div>
   </div>
 
-  <!-- BOTÃO FLUTUANTE "+" -->
+  <!-- FAB -->
   <button class="fab" id="fabNew" aria-label="Nova nota">+</button>
 
-  <!-- SCRIPTS (ordem: serviços → componentes → maestro) -->
+  <!-- SCRIPTS -->
   <script src="js/services/storage.js"></script>
   <script src="js/components/noteCard.js"></script>
   <script src="js/components/editorMenu.js"></script>
   <script src="js/app.js"></script>
 
-  <!-- PWA — Service Worker + Install -->
+  <!-- PWA -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -84,36 +109,19 @@
     }
 
     let _installPrompt = null;
-
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       _installPrompt = e;
-
       const btn = document.createElement('button');
       btn.id = 'btnInstall';
       btn.textContent = '⬇ Instalar app';
       btn.style.cssText = `
-        font-family: var(--font-ui);
-        font-size: 0.75rem;
-        font-weight: 500;
-        padding: 6px 14px;
-        border-radius: 99px;
+        font-family: var(--font-ui); font-size: 0.75rem; font-weight: 500;
+        padding: 6px 14px; border-radius: 99px;
         border: 1.5px solid var(--color-border);
-        background: var(--color-surface);
-        color: var(--color-ink-light);
-        cursor: pointer;
-        margin-left: auto;
-        transition: all 0.2s;
-        white-space: nowrap;
+        background: var(--color-surface); color: var(--color-ink-light);
+        cursor: pointer; transition: all 0.2s; white-space: nowrap;
       `;
-      btn.addEventListener('mouseenter', () => {
-        btn.style.borderColor = 'var(--color-ink)';
-        btn.style.color = 'var(--color-ink)';
-      });
-      btn.addEventListener('mouseleave', () => {
-        btn.style.borderColor = 'var(--color-border)';
-        btn.style.color = 'var(--color-ink-light)';
-      });
       btn.addEventListener('click', async () => {
         if (!_installPrompt) return;
         _installPrompt.prompt();
@@ -121,10 +129,8 @@
         if (outcome === 'accepted') btn.remove();
         _installPrompt = null;
       });
-
-      document.querySelector('.app-header').appendChild(btn);
+      document.querySelector('.app-header__top').appendChild(btn);
     });
-
     window.addEventListener('appinstalled', () => {
       document.getElementById('btnInstall')?.remove();
       _installPrompt = null;
