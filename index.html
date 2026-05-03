@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas Adesivas</title>
+    <style>
+        /* Arquitetura Visual Limpa */
+        body { 
+            font-family: sans-serif; 
+            background: #F8F9FA; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            color: #333;
+        }
+        /* Grid modular para os Post-its */
+        #board { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 16px; 
+            padding-bottom: 80px; /* Espaço para o botão não cobrir as notas */
+        }
+        /* O Módulo da Nota (Post-it) */
+        .note {
+            background: #FFF7D6; /* Amarelo clássico claro */
+            padding: 16px;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+        .note textarea {
+            flex-grow: 1; 
+            border: none; 
+            background: transparent; 
+            resize: none; 
+            outline: none;
+            font-family: inherit; 
+            font-size: 15px;
+            color: #333;
+        }
+        /* Botão de excluir dentro do módulo */
+        .delete-btn {
+            align-self: flex-end; 
+            background: none; 
+            border: none; 
+            color: #dc3545; 
+            cursor: pointer;
+            font-weight: bold; 
+            margin-bottom: 8px;
+            padding: 0;
+        }
+        /* Botão Flutuante Principal */
+        .fab {
+            position: fixed; 
+            bottom: 30px; 
+            right: 30px; 
+            background: #20B2AA; /* Verde água inspirado na sua imagem do ColorNote */
+            color: white;
+            border: none; 
+            border-radius: 50%; 
+            width: 60px; 
+            height: 60px; 
+            font-size: 32px;
+            font-weight: 300;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Minhas Notas</h2>
+    </header>
+    
+    <div id="board"></div>
+    
+    <button class="fab" id="addBtn">+</button>
+
+    <script>
+        // O Cérebro: Lógica de Persistência Local
+        const board = document.getElementById('board');
+        const addBtn = document.getElementById('addBtn');
+        const STORAGE_KEY = 'minhas_notas_locais';
+
+        // 1. Carrega o que já existe na memória do celular
+        let notas = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+        // 2. Função estrita para salvar no banco local
+        function salvarNotas() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(notas));
+        }
+
+        // 3. Função que desenha os módulos na tela
+        function renderizarNotas() {
+            board.innerHTML = '';
+            
+            notas.forEach((nota, index) => {
+                const div = document.createElement('div');
+                div.className = 'note';
+                
+                // Construção do botão de apagar
+                const btnApagar = document.createElement('button');
+                btnApagar.className = 'delete-btn';
+                btnApagar.innerText = 'X';
+                btnApagar.onclick = () => {
+                    notas.splice(index, 1); // Remove da lista
+                    salvarNotas();          // Atualiza a memória
+                    renderizarNotas();      // Redesenha a tela
+                };
+
+                // Construção da área de texto
+                const textarea = document.createElement('textarea');
+                textarea.value = nota.texto;
+                textarea.placeholder = 'Escreva sua ideia...';
+                textarea.oninput = (e) => {
+                    notas[index].texto = e.target.value; // Atualiza o texto digitado
+                    salvarNotas();                       // Salva em tempo real
+                };
+
+                // Monta o módulo
+                div.appendChild(btnApagar);
+                div.appendChild(textarea);
+                board.appendChild(div);
+            });
+        }
+
+        // 4. Ação do Botão +
+        addBtn.addEventListener('click', () => {
+            notas.unshift({ texto: '' }); // Adiciona uma nota nova e vazia no topo
+            salvarNotas();
+            renderizarNotas();
+        });
+
+        // 5. Inicialização do App
+        renderizarNotas();
+    </script>
+</body>
+</html>
