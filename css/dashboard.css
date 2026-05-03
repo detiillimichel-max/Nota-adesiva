@@ -1,5 +1,6 @@
+/* ── VISTA GRID (padrão) ───────────────────────── */
 .dashboard {
-  padding: 0 var(--space-xl) var(--space-xl);
+  padding: var(--space-lg) var(--space-xl) var(--space-xl);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--space-lg);
@@ -12,40 +13,72 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 480px) {
-  .dashboard {
-    padding: 0 var(--space-md) var(--space-md);
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: var(--space-md);
-  }
-  .app-header {
-    padding: var(--space-lg) var(--space-md) var(--space-md);
-    flex-wrap: wrap;
-  }
+/* ── VISTA LISTA ───────────────────────────────── */
+.dashboard.view-list {
+  grid-template-columns: 1fr;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-xl);
 }
 
-@media (min-width: 1400px) {
-  .dashboard {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    max-width: 1600px;
-    margin-inline: auto;
-  }
+.dashboard.view-list .note-card {
+  min-height: unset !important;
+  border-radius: var(--radius-sm) !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  transform: none !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: var(--space-md) !important;
+  animation-delay: 0ms !important;
 }
 
+/* No modo lista, a inclinação some */
+.dashboard.view-list .note-card:hover {
+  transform: translateX(4px) !important;
+  box-shadow: 3px 3px 12px rgba(44,35,24,0.12) !important;
+}
+
+/* Título em destaque na lista */
+.dashboard.view-list .note-card__title {
+  font-size: 0.95rem !important;
+  -webkit-line-clamp: 1 !important;
+}
+
+/* Texto preview compacto na lista */
+.dashboard.view-list .note-card__text {
+  font-size: 0.85rem !important;
+  -webkit-line-clamp: 1 !important;
+  opacity: 0.7;
+}
+
+/* Data alinhada à direita na lista */
+.dashboard.view-list .note-card__date {
+  margin-top: 0 !important;
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.7rem !important;
+}
+
+/* Barra colorida lateral na vista lista */
+.dashboard.view-list .note-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: rgba(44,35,24,0.15);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+/* ── Animações ─────────────────────────────────── */
 .note-card {
   animation: cardEnter 0.35s var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 60ms);
+  animation-delay: calc(var(--i, 0) * 50ms);
 }
 
 @keyframes cardEnter {
-  from {
-    opacity: 0;
-    transform: translateY(20px) rotate(var(--tilt, 0deg));
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) rotate(var(--tilt, 0deg));
-  }
+  from { opacity: 0; transform: translateY(16px) rotate(var(--tilt, 0deg)); }
+  to   { opacity: 1; transform: translateY(0)    rotate(var(--tilt, 0deg)); }
 }
 
 .note-card.is-removing {
@@ -54,6 +87,24 @@
 }
 
 @keyframes cardExit {
-  from { opacity: 1; transform: scale(1) rotate(var(--tilt, 0deg)); }
+  from { opacity: 1; transform: scale(1)    rotate(var(--tilt, 0deg)); }
   to   { opacity: 0; transform: scale(0.85) rotate(var(--tilt, 0deg)); }
+}
+
+/* ── Responsividade ────────────────────────────── */
+@media (max-width: 480px) {
+  .dashboard {
+    padding: var(--space-md) var(--space-md) var(--space-md);
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: var(--space-md);
+  }
+  .dashboard.view-list { padding: var(--space-sm) var(--space-md); }
+}
+
+@media (min-width: 1400px) {
+  .dashboard {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    max-width: 1600px;
+    margin-inline: auto;
+  }
 }
