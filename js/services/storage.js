@@ -12,7 +12,7 @@ const StorageService = (() => {
       if (!raw) return [];
       return JSON.parse(raw);
     } catch (err) {
-      console.warn('[StorageService] Falha ao ler notas:', err);
+      console.warn('[StorageService] Falha ao ler:', err);
       return [];
     }
   }
@@ -21,7 +21,7 @@ const StorageService = (() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
     } catch (err) {
-      console.error('[StorageService] Falha ao salvar notas:', err);
+      console.error('[StorageService] Falha ao salvar:', err);
     }
   }
 
@@ -32,9 +32,10 @@ const StorageService = (() => {
     if (!note.id) {
       const newNote = {
         id:        _generateId(),
-        content:   note.content   ?? '',
-        color:     note.color     ?? '--note-yellow',
-        tilt:      note.tilt      ?? _randomTilt(),
+        title:     note.title   ?? '',
+        content:   note.content ?? '',
+        color:     note.color   ?? '--note-yellow',
+        tilt:      note.tilt    ?? _randomTilt(),
         createdAt: now,
         updatedAt: now,
       };
@@ -52,8 +53,7 @@ const StorageService = (() => {
   }
 
   function deleteNote(id) {
-    const notes = getAll().filter(n => n.id !== id);
-    _persist(notes);
+    _persist(getAll().filter(n => n.id !== id));
   }
 
   function clear() {
