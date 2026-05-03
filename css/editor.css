@@ -1,0 +1,202 @@
+.editor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: rgba(44, 35, 24, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.editor-overlay.is-open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.editor-panel {
+  width: 100%;
+  max-width: 680px;
+  max-height: 90dvh;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-editor);
+  transform: translateY(32px) scale(0.97);
+  transition: transform 0.35s var(--ease-out);
+  --panel-color: var(--note-yellow);
+}
+
+.editor-overlay.is-open .editor-panel {
+  transform: translateY(0) scale(1);
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--panel-color, var(--note-yellow));
+  border-bottom: 1px solid rgba(44,35,24,0.08);
+  flex-shrink: 0;
+}
+
+.editor-colors {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.color-swatch:hover { transform: scale(1.2); }
+
+.color-swatch.is-active {
+  border-color: var(--color-ink);
+  transform: scale(1.15);
+}
+
+.btn-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  background: rgba(44,35,24,0.10);
+  color: var(--color-ink);
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-close:hover { background: rgba(44,35,24,0.20); }
+
+.editor-paper {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  --line-height: 32px;
+  --line-color: rgba(44,35,24,0.08);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(var(--line-height) - 1px),
+    var(--line-color) calc(var(--line-height) - 1px),
+    var(--line-color) var(--line-height)
+  );
+  background-position: 0 var(--space-md);
+  background-size: 100% var(--line-height);
+  background-color: var(--panel-color, var(--note-yellow));
+}
+
+.editor-paper::before {
+  content: '';
+  position: absolute;
+  left: 56px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(220, 100, 100, 0.2);
+  pointer-events: none;
+}
+
+.editor-textarea {
+  width: 100%;
+  min-height: 380px;
+  padding: var(--space-md) var(--space-lg) var(--space-lg) 72px;
+  font-family: var(--font-note);
+  font-size: 1.35rem;
+  line-height: var(--line-height, 32px);
+  color: var(--color-ink);
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  caret-color: var(--color-ink);
+}
+
+.editor-textarea::placeholder {
+  color: rgba(44,35,24,0.30);
+  font-style: italic;
+}
+
+.editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--panel-color, var(--note-yellow));
+  border-top: 1px solid rgba(44,35,24,0.08);
+  flex-shrink: 0;
+}
+
+.btn-delete {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(44,35,24,0.20);
+  background: transparent;
+  color: var(--color-ink-light);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-delete:hover {
+  background: rgba(220, 60, 60, 0.10);
+  color: #c0392b;
+  border-color: #c0392b;
+}
+
+.btn-save {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-ink);
+  color: var(--color-bg);
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.btn-save:hover  { opacity: 0.88; }
+.btn-save:active { transform: scale(0.97); }
+
+@media (max-width: 480px) {
+  .editor-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .editor-panel {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-height: 92dvh;
+    transform: translateY(100%);
+  }
+  .editor-overlay.is-open .editor-panel {
+    transform: translateY(0);
+  }
+  .editor-paper::before { left: 44px; }
+  .editor-textarea {
+    padding-left: 56px;
+    font-size: 1.2rem;
+  }
+}
