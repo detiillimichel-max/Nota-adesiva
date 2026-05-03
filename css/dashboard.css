@@ -1,0 +1,59 @@
+.dashboard {
+  padding: 0 var(--space-xl) var(--space-xl);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-lg);
+  align-items: start;
+  animation: dashboardReveal 0.4s var(--ease-out) both;
+}
+
+@keyframes dashboardReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 0 var(--space-md) var(--space-md);
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--space-md);
+  }
+  .app-header {
+    padding: var(--space-lg) var(--space-md) var(--space-md);
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 1400px) {
+  .dashboard {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    max-width: 1600px;
+    margin-inline: auto;
+  }
+}
+
+.note-card {
+  animation: cardEnter 0.35s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) rotate(var(--tilt, 0deg));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+}
+
+.note-card.is-removing {
+  animation: cardExit 0.25s var(--ease-out) forwards;
+  pointer-events: none;
+}
+
+@keyframes cardExit {
+  from { opacity: 1; transform: scale(1) rotate(var(--tilt, 0deg)); }
+  to   { opacity: 0; transform: scale(0.85) rotate(var(--tilt, 0deg)); }
+}
