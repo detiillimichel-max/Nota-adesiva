@@ -1,12 +1,20 @@
 (function initApp() {
 
-  /* Estado global do app */
-  let _currentView  = 'grid';  /* 'grid' | 'list' */
-  let _searchQuery  = '';
+  let _currentView = 'grid';
+  let _searchQuery = '';
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
 
+    /* Inicializa componentes */
     EditorMenu.init();
+
+    /* Pede permissão de notificação e verifica lembretes pendentes */
+    const perm = await PushService.requestPermission();
+    if (perm === 'granted') {
+      PushService.subscribe();
+      PushService.checkPending();
+    }
+
     _render();
 
     /* ── Eventos de nota ─────────────────────── */
@@ -17,14 +25,23 @@
     });
 
     document.addEventListener('note:save', (e) => {
-      const { id, title, content, color } = e.detail;
-      StorageService.save({ id, title, content, color });
+      const { id, title, content, color, photo, reminder } = e.detail;
+      const saved = StorageService.save({ id, title, content, color, photo, reminder });
+
+      /* Gerencia lembrete */
+      if (reminder) {
+        PushService.saveReminder(saved.id, reminder, title || content.slice(0,30) || 'Nota');
+      } else {
+        PushService.removeReminder(saved.id);
+      }
+
       _render();
     });
 
     document.addEventListener('note:delete', (e) => {
       NoteCard.removeCard(e.detail.id);
       StorageService.delete(e.detail.id);
+      PushService.removeReminder(e.detail.id);
       setTimeout(_render, 300);
     });
 
@@ -52,9 +69,11 @@
     document.getElementById('btnGrid').addEventListener('click', () => _setView('grid'));
     document.getElementById('btnList').addEventListener('click', () => _setView('list'));
 
-  });
+    /* Restaura última vista */
+    const savedView = localStorage.getItem('notas_view');
+    if (savedView === 'list') _setView('list');
 
-  /* ── Funções internas ────────────────────────── */
+  });
 
   function _render() {
     const all      = StorageService.getAll();
@@ -64,29 +83,16 @@
           (n.content || '').toLowerCase().includes(_searchQuery.toLowerCase())
         )
       : all;
-
     NoteCard.renderAll(filtered, _searchQuery);
   }
 
   function _setView(view) {
     _currentView = view;
     const dashboard = document.getElementById('dashboard');
-
     dashboard.classList.toggle('view-list', view === 'list');
-
     document.getElementById('btnGrid').classList.toggle('is-active', view === 'grid');
     document.getElementById('btnList').classList.toggle('is-active', view === 'list');
-
-    /* Persiste preferência */
     localStorage.setItem('notas_view', view);
   }
-
-  /* Restaura última vista usada */
-  (() => {
-    const saved = localStorage.getItem('notas_view');
-    if (saved === 'list') {
-      document.addEventListener('DOMContentLoaded', () => _setView('list'));
-    }
-  })();
 
 })();
