@@ -21,6 +21,10 @@ const StorageService = (() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
     } catch (err) {
+      /* localStorage cheio — avisa usuário */
+      if (err.name === 'QuotaExceededError') {
+        alert('Armazenamento cheio! Apague algumas fotos ou notas antigas.');
+      }
       console.error('[StorageService] Falha ao salvar:', err);
     }
   }
@@ -32,10 +36,12 @@ const StorageService = (() => {
     if (!note.id) {
       const newNote = {
         id:        _generateId(),
-        title:     note.title   ?? '',
-        content:   note.content ?? '',
-        color:     note.color   ?? '--note-yellow',
-        tilt:      note.tilt    ?? _randomTilt(),
+        title:     note.title    ?? '',
+        content:   note.content  ?? '',
+        color:     note.color    ?? '--note-yellow',
+        tilt:      note.tilt     ?? _randomTilt(),
+        photo:     note.photo    ?? null,   /* base64 ou null */
+        reminder:  note.reminder ?? null,   /* ISO datetime ou null */
         createdAt: now,
         updatedAt: now,
       };
