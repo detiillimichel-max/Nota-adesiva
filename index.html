@@ -20,80 +20,84 @@
 </head>
 <body>
 
-  <!-- CABEÇALHO -->
   <header class="app-header">
     <div class="app-header__top">
       <h1 class="app-title">minhas notas</h1>
       <span class="note-count" id="noteCount">0 notas</span>
     </div>
-
-    <!-- Barra de busca + toggle de vista -->
     <div class="app-toolbar">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input
-          type="search"
-          class="search-input"
-          id="searchInput"
-          placeholder="Buscar notas…"
-          autocomplete="off"
-        />
-        <button class="search-clear" id="searchClear" aria-label="Limpar busca">✕</button>
+        <input type="search" class="search-input" id="searchInput"
+               placeholder="Buscar notas…" autocomplete="off" />
+        <button class="search-clear" id="searchClear" aria-label="Limpar">✕</button>
       </div>
-
       <div class="view-toggle">
-        <button class="view-btn is-active" id="btnGrid" aria-label="Vista grid" title="Grid">⊞</button>
-        <button class="view-btn" id="btnList" aria-label="Vista lista" title="Lista">☰</button>
+        <button class="view-btn is-active" id="btnGrid" title="Grid">⊞</button>
+        <button class="view-btn" id="btnList" title="Lista">☰</button>
       </div>
     </div>
   </header>
 
-  <!-- DASHBOARD -->
   <main class="dashboard" id="dashboard"></main>
 
-  <!-- EDITOR TELA CHEIA -->
+  <!-- EDITOR -->
   <div class="editor-overlay" id="editorOverlay" aria-hidden="true">
     <div class="editor-panel">
 
+      <!-- Cores -->
       <div class="editor-toolbar">
         <div class="editor-colors" id="editorColors"></div>
-        <button class="btn-close" id="btnCloseEditor" aria-label="Fechar editor">✕</button>
+        <button class="btn-close" id="btnCloseEditor" aria-label="Fechar">✕</button>
       </div>
 
-      <!-- Campo de título (novo) -->
+      <!-- Título -->
       <div class="editor-title-wrap" id="editorTitleWrap">
-        <input
-          type="text"
-          class="editor-title-input"
-          id="editorTitle"
-          placeholder="Título (opcional)"
-          maxlength="60"
-          autocomplete="off"
-        />
+        <input type="text" class="editor-title-input" id="editorTitle"
+               placeholder="Título (opcional)" maxlength="60" autocomplete="off" />
       </div>
 
+      <!-- Foto: preview + botões -->
+      <div class="editor-photo-section" id="editorPhotoSection">
+        <img class="editor-photo-preview" id="photoPreview" alt="Foto da nota" />
+        <button class="btn-remove-photo" id="btnRemovePhoto" aria-label="Remover foto">✕</button>
+        <div class="editor-photo-actions">
+          <button class="btn-photo" id="btnCamera">📷 Câmera</button>
+          <button class="btn-photo" id="btnGallery">🖼 Galeria</button>
+        </div>
+      </div>
+
+      <!-- Texto pautado -->
       <div class="editor-paper">
-        <textarea
-          class="editor-textarea"
-          id="editorTextarea"
-          placeholder="Escreva aqui…"
-          spellcheck="true"
-        ></textarea>
+        <textarea class="editor-textarea" id="editorTextarea"
+                  placeholder="Escreva aqui…" spellcheck="true"></textarea>
       </div>
 
+      <!-- Lembrete -->
+      <div class="editor-reminder-section">
+        <div class="reminder-row">
+          <label class="reminder-label" for="reminderInput">⏰ Lembrete</label>
+          <span class="reminder-display" id="reminderDisplay"></span>
+          <button class="btn-clear-reminder" id="btnClearReminder" aria-label="Remover lembrete">✕</button>
+        </div>
+        <input type="datetime-local" class="reminder-input" id="reminderInput" />
+      </div>
+
+      <!-- Rodapé -->
       <div class="editor-footer">
         <button class="btn-delete" id="btnDeleteNote">Apagar nota</button>
-        <button class="btn-save" id="btnSaveNote">Salvar</button>
+        <button class="btn-save"   id="btnSaveNote">Salvar</button>
       </div>
 
     </div>
   </div>
 
-  <!-- FAB -->
   <button class="fab" id="fabNew" aria-label="Nova nota">+</button>
 
-  <!-- SCRIPTS -->
+  <!-- Scripts (ordem importa) -->
   <script src="js/services/storage.js"></script>
+  <script src="js/services/push.js"></script>
+  <script src="js/services/photo.js"></script>
   <script src="js/components/noteCard.js"></script>
   <script src="js/components/editorMenu.js"></script>
   <script src="js/app.js"></script>
@@ -103,37 +107,31 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('[PWA] SW registrado:', reg.scope))
-          .catch(err => console.warn('[PWA] SW falhou:', err));
+          .then(r => console.log('[PWA] SW:', r.scope))
+          .catch(e => console.warn('[PWA] SW falhou:', e));
       });
     }
-
-    let _installPrompt = null;
+    let _ip = null;
     window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      _installPrompt = e;
+      e.preventDefault(); _ip = e;
       const btn = document.createElement('button');
-      btn.id = 'btnInstall';
-      btn.textContent = '⬇ Instalar app';
+      btn.textContent = '⬇ Instalar';
       btn.style.cssText = `
-        font-family: var(--font-ui); font-size: 0.75rem; font-weight: 500;
-        padding: 6px 14px; border-radius: 99px;
-        border: 1.5px solid var(--color-border);
-        background: var(--color-surface); color: var(--color-ink-light);
-        cursor: pointer; transition: all 0.2s; white-space: nowrap;
+        font-family:var(--font-ui);font-size:.75rem;font-weight:500;
+        padding:6px 14px;border-radius:99px;border:1.5px solid var(--color-border);
+        background:var(--color-surface);color:var(--color-ink-light);
+        cursor:pointer;transition:all .2s;white-space:nowrap;
       `;
-      btn.addEventListener('click', async () => {
-        if (!_installPrompt) return;
-        _installPrompt.prompt();
-        const { outcome } = await _installPrompt.userChoice;
+      btn.onclick = async () => {
+        _ip.prompt();
+        const {outcome} = await _ip.userChoice;
         if (outcome === 'accepted') btn.remove();
-        _installPrompt = null;
-      });
+        _ip = null;
+      };
       document.querySelector('.app-header__top').appendChild(btn);
     });
     window.addEventListener('appinstalled', () => {
       document.getElementById('btnInstall')?.remove();
-      _installPrompt = null;
     });
   </script>
 
